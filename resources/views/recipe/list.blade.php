@@ -11,11 +11,9 @@
 
                     @if($categories)
                         @foreach($categories as $category)
-                            <div class="col-md-4 mt-3 pl-0 btn button-blue">
-                                <a class="nav-link btn btn-primary" href="{{ route('recipe.list', ['category' => $category->category]) }}">
-                                    {{ $category->category }}
-                                </a>
-                            </div>
+                            <a class="col-md-2 btn btn-success" href="{{ route('recipe.list', ['category' => $category->category]) }}">
+                                {{ $category->category }}
+                            </a>
                         @endforeach
                     @endif
 
