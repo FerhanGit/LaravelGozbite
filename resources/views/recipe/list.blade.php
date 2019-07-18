@@ -8,21 +8,19 @@
                 <div class="card-header align-content-center">{{ __('Recipe Index') }}</div>
 
                 <div class="card-body">
-
                     <div class="btn-group mb-4">
                         @if($categories)
                             @foreach($categories as $category)
-
-                                @foreach($users as $user)
-                                    <label class="btn btn-secondary btn-light  {{  null != request('category', null) &&  null != request('user', null) && request('category') == $category->category && request('user') == $user->id ? 'active': '' }}">
-                                        <a class="nav-link" href="{{ route('recipe.category.user.list', ['category' => $category->category, 'user' => $user->id]) }}"> {{ $category->category }} by {{ $user->name }}</a>
-                                    </label>
-                                @endforeach
-
                                 <label class="btn btn-secondary btn-light  {{ null != request('category', null) && null == request('user', null) && request('category') == $category->category ? 'active': '' }}">
                                     <a class="nav-link " href="{{ route('recipe.category.list', ['category' => $category->category]) }}"> all {{$category->category}}</a>
                                 </label>
-
+                                @if($users)
+                                    @foreach($users as $user)
+                                        <label class="btn btn-secondary btn-light  {{ null != request('category', null) &&  null != request('user', null) && request('category') == $category->category && request('user') == $user->id ? 'active': '' }}">
+                                            <a class="nav-link" href="{{ route('recipe.category.user.list', ['category' => $category->category, 'user' => $user->id]) }}"> {{ $category->category }} by {{ $user->name }}</a>
+                                        </label>
+                                    @endforeach
+                                @endif
                             @endforeach
                         @endif
 
@@ -33,7 +31,8 @@
                                 </label>
                             @endforeach
                         @endif
-                </div>
+
+                    </div>
                     @if($recipes)
                         <table class="table-striped table-bordered w-100">
                             <thead>

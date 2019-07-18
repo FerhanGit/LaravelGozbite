@@ -37,9 +37,8 @@ class RecipeController extends Controller
             $where['user_id'] = $user;
         }
         $recipes = Recipe::where($where)->orderBy('created_at', 'desc')->paginate(5);
-
         $categories = Recipe::distinct()->get(['category']);
-        $users = User::distinct()->get(['id', 'name']);
+        $users = User::distinct()->get(['id']);
 
         //$recipes = $request->user()->recipes->sortByDesc('created_at');
 
