@@ -28,7 +28,11 @@ Route::get('/test-verify', function () {
     return 'Verify route';
 })->middleware('verified');
 
-
-//Route::get('/recipe', 'RecipeController@lists')->name('recipe.list');
-Route::get('/recipe/{category?}', 'RecipeController@lists')->name('recipe.list');
 Route::resource('recipe', 'RecipeController')->except(['index']);
+
+
+Route::get('/recipe/category/{category}/user/{user}', 'RecipeController@lists')->name('recipe.category.user.list');
+Route::get('/recipe/category/{category}', 'RecipeController@listsByCategory')->name('recipe.category.list');
+Route::get('/recipe/user/{user}', 'RecipeController@listsByUser')->name('recipe.user.list');
+Route::get('/recipe', 'RecipeController@lists')->name('recipe.list');
+

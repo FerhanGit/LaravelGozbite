@@ -4,20 +4,33 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <div class="card  justify-content-center">
+            <div class="card justify-content-center">
                 <div class="card-header align-content-center">{{ __('Recipe Index') }}</div>
 
                 <div class="card-body">
 
                     @if($categories)
                         @foreach($categories as $category)
-                            <a class="col-md-2 btn btn-success" href="{{ route('recipe.list', ['category' => $category->category]) }}">
-                                {{ $category->category }}
+                            <a class="col-sm-2 mb-3 btn btn-success btn-xs" href="{{ route('recipe.category.list', ['category' => $category->category]) }}">
+                                all {{ $category->category }}
+                            </a>
+                            @foreach($users as $user)
+                                <a class="col-sm-2 mb-3 btn btn-success btn-sm" href="{{ route('recipe.category.user.list', ['category' => $category->category, 'user' => $user->id]) }}">
+                                    {{ $category->category }} by {{ $user->name }}
+                                </a>
+                            @endforeach
+                        @endforeach
+                    @endif
+
+                    @if($users)
+                        @foreach($users as $user)
+                            <a class="col-sm-2 mb-3 btn btn-success btn-sm" href="{{ route('recipe.user.list', ['user' => $user->id]) }}">
+                               all by {{ $user->name }}
                             </a>
                         @endforeach
                     @endif
 
-                @if($recipes)
+                    @if($recipes)
                         <table class="table-striped table-bordered w-100">
                             <thead>
                             <tr>
@@ -47,7 +60,7 @@
 
                         @if($recipes->links())
                             <div class="col-md-4 mt-3 pl-0">
-                                {{ $recipes->links() }}
+                                {{ $recipes->onEachSide(5)->links() }}
                             </div>
                         @endif
                         

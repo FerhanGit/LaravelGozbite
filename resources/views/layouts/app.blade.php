@@ -88,7 +88,7 @@
 
         <div class="container">
             @component('partials.navigation')
-                hello
+                Additional Links
             @endcomponent
         </div>
     </div>

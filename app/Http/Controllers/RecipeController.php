@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -26,24 +27,53 @@ class RecipeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function lists(Request $request, $category = null)
+    public function lists(Request $request, $category = null, $user = null)
     {
         $where = [];
         if (!empty($category)) {
             $where['category'] = $category;
         }
+        if (!empty($user)) {
+            $where['user_id'] = $user;
+        }
         $recipes = Recipe::where($where)->orderBy('created_at', 'desc')->paginate(5);
 
         $categories = Recipe::distinct()->get(['category']);
-       // $recipes = Recipe::sortable()->paginate(5);
+        $users = User::distinct()->get(['id', 'name']);
 
-
-      //  $recipes = Recipe::all()->paginate(5)->sortByDesc('created_at');
-        //$recipes = $request->user()->recipes->sortByDesc('created_at');
         //$recipes = $request->user()->recipes->sortByDesc('created_at');
 
-        return view('recipe.list', ['recipes' => $recipes, 'categories' => $categories]);
+        return view('recipe.list', ['recipes' => $recipes, 'categories' => $categories, 'users' => $users]);
         //
+    }
+
+    public function listsByUser(Request $request, $user = null)
+    {
+        $where = [];
+        if (!empty($user)) {
+            $where['user_id'] = $user;
+        }
+
+        $recipes = Recipe::where($where)->orderBy('created_at', 'desc')->paginate(5);
+        $categories = Recipe::distinct()->get(['category']);
+        $users = User::distinct()->get(['id', 'name']);
+
+        return view('recipe.list', ['recipes' => $recipes, 'categories' => $categories, 'users' => $users]);
+    }
+
+
+    public function listsByCategory(Request $request, $category = null)
+    {
+        $where = [];
+        if (!empty($category)) {
+            $where['category'] = $category;
+        }
+
+        $recipes = Recipe::where($where)->orderBy('created_at', 'desc')->paginate(5);
+        $categories = Recipe::distinct()->get(['category']);
+        $users = User::distinct()->get(['id', 'name']);
+
+        return view('recipe.list', ['recipes' => $recipes, 'categories' => $categories, 'users' => $users]);
     }
 
     /**
