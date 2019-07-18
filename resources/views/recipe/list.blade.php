@@ -20,7 +20,7 @@
                                 @endforeach
 
                                 <label class="btn btn-secondary btn-light  {{ null != request('category', null) && null == request('user', null) && request('category') == $category->category ? 'active': '' }}">
-                                    <a class="nav-link " href="{{ route('recipe.list', ['category' => $category->category]) }}"> all {{$category->category}}</a>
+                                    <a class="nav-link " href="{{ route('recipe.category.list', ['category' => $category->category]) }}"> all {{$category->category}}</a>
                                 </label>
 
                             @endforeach
