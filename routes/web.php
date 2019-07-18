@@ -29,5 +29,6 @@ Route::get('/test-verify', function () {
 })->middleware('verified');
 
 
-Route::get('/recipe', 'RecipeController@lists')->name('recipe.list');
+//Route::get('/recipe', 'RecipeController@lists')->name('recipe.list');
+Route::get('/recipe/{category?}', 'RecipeController@lists')->name('recipe.list');
 Route::resource('recipe', 'RecipeController')->except(['index']);

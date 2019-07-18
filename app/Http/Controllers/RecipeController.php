@@ -26,10 +26,15 @@ class RecipeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function lists(Request $request)
+    public function lists(Request $request, $category = null)
     {
-        $recipes = Recipe::orderBy('created_at', 'desc')->paginate(5);
+        $where = [];
+        if (!empty($category)) {
+            $where['category'] = $category;
+        }
+        $recipes = Recipe::where($where)->orderBy('created_at', 'desc')->paginate(5);
 
+        $categories = Recipe::distinct()->get(['category']);
        // $recipes = Recipe::sortable()->paginate(5);
 
 
@@ -37,7 +42,7 @@ class RecipeController extends Controller
         //$recipes = $request->user()->recipes->sortByDesc('created_at');
         //$recipes = $request->user()->recipes->sortByDesc('created_at');
 
-        return view('recipe.list', ['recipes' => $recipes]);
+        return view('recipe.list', ['recipes' => $recipes, 'categories' => $categories]);
         //
     }
 

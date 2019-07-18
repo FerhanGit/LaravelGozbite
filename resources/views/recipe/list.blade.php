@@ -8,7 +8,18 @@
                 <div class="card-header align-content-center">{{ __('Recipe Index') }}</div>
 
                 <div class="card-body">
-                    @if($recipes)
+
+                    @if($categories)
+                        @foreach($categories as $category)
+                            <div class="col-md-4 mt-3 pl-0 btn button-blue">
+                                <a class="nav-link btn btn-primary" href="{{ route('recipe.list', ['category' => $category->category]) }}">
+                                    {{ $category->category }}
+                                </a>
+                            </div>
+                        @endforeach
+                    @endif
+
+                @if($recipes)
                         <table class="table-striped table-bordered w-100">
                             <thead>
                             <tr>
