@@ -55,7 +55,12 @@
                                         <td>{{ $recipe->content }} </td>
                                         <td> <a href="{{ route('home') }}"> {{ $recipe->user->id }} </a> </td>
                                         <td><a href="{{ route('home') }}"> {{ $recipe->user->name }} </a> </td>
-                                        <td>{{ \App\User::find($recipe->user->id)->recipes->count() }} </td>
+                                        <td>{{ \App\User::find($recipe->user->id)->recipes->count() }}
+                                            @if(true == $recipe->is_main_user)
+                                                <span class="text-danger"> >> Main user << </span>
+                                            @endif
+                                        </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>
