@@ -23,6 +23,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Inject variables into views
+        return $this->injectViewParams();
+    }
+
+
+    private function injectViewParams()
+    {
+        // Inject variables into views
+        view()->composer('*', function($view) {
+            $language = 'FR';
+
+            $addParams = [];
+            $addParams['language'] = $language;
+
+            if ('recipe.list' == $view->getName()) {
+                $locale = 'fr_FR';
+                $addParams['locale'] = $locale;
+            }
+
+            return $view->with($addParams);
+        });
     }
 }

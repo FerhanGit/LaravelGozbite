@@ -9,27 +9,31 @@
 
                 <div class="card-body">
 
-                    @if($categories)
-                        @foreach($categories as $category)
-                            <a class="col-sm-2 mb-3 btn btn-success btn-xs" href="{{ route('recipe.category.list', ['category' => $category->category]) }}">
-                                all {{ $category->category }}
-                            </a>
-                            @foreach($users as $user)
-                                <a class="col-sm-2 mb-3 btn btn-success btn-sm" href="{{ route('recipe.category.user.list', ['category' => $category->category, 'user' => $user->id]) }}">
-                                    {{ $category->category }} by {{ $user->name }}
-                                </a>
+                    <div class="btn-group mb-4">
+                        @if($categories)
+                            @foreach($categories as $category)
+
+                                @foreach($users as $user)
+                                    <label class="btn btn-secondary btn-light  {{  null != request('category', null) &&  null != request('user', null) && request('category') == $category->category && request('user') == $user->id ? 'active': '' }}">
+                                        <a class="nav-link" href="{{ route('recipe.category.user.list', ['category' => $category->category, 'user' => $user->id]) }}"> {{ $category->category }} by {{ $user->name }}</a>
+                                    </label>
+                                @endforeach
+
+                                <label class="btn btn-secondary btn-light  {{ null != request('category', null) && null == request('user', null) && request('category') == $category->category ? 'active': '' }}">
+                                    <a class="nav-link " href="{{ route('recipe.list', ['category' => $category->category]) }}"> all {{$category->category}}</a>
+                                </label>
+
                             @endforeach
-                        @endforeach
-                    @endif
+                        @endif
 
-                    @if($users)
-                        @foreach($users as $user)
-                            <a class="col-sm-2 mb-3 btn btn-success btn-sm" href="{{ route('recipe.user.list', ['user' => $user->id]) }}">
-                               all by {{ $user->name }}
-                            </a>
-                        @endforeach
-                    @endif
-
+                        @if($users)
+                            @foreach($users as $user)
+                                <label class="btn btn-secondary btn-light  {{ null != request('user', null) && null == request('category', null)  && request('user') == $user->id ? 'active': '' }}">
+                                    <a class="nav-link" href="{{ route('recipe.user.list', ['user' => $user->id]) }}"> all by {{ $user->name }}</a>
+                                </label>
+                            @endforeach
+                        @endif
+                </div>
                     @if($recipes)
                         <table class="table-striped table-bordered w-100">
                             <thead>

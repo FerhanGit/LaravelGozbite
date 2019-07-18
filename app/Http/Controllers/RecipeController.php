@@ -44,7 +44,6 @@ class RecipeController extends Controller
         //$recipes = $request->user()->recipes->sortByDesc('created_at');
 
         return view('recipe.list', ['recipes' => $recipes, 'categories' => $categories, 'users' => $users]);
-        //
     }
 
     public function listsByUser(Request $request, $user = null)
@@ -60,7 +59,6 @@ class RecipeController extends Controller
 
         return view('recipe.list', ['recipes' => $recipes, 'categories' => $categories, 'users' => $users]);
     }
-
 
     public function listsByCategory(Request $request, $category = null)
     {
