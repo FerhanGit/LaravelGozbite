@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Recipe;
+use App\RecipeImage;
 use App\User;
 use function compact;
 use function dump;
@@ -12,8 +13,11 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Intervention\Image\Facades\Image;
+use function storage_path;
 
 class RecipeController extends Controller
 {
@@ -38,7 +42,7 @@ class RecipeController extends Controller
         }
         $recipes = Recipe::where($where)->orderBy('created_at', 'desc')->paginate(5);
         $categories = Recipe::distinct()->get(['category']);
-        $users = User::distinct()->get(['id']);
+        $users = User::distinct()->get(['id', 'name']);
 
         //$recipes = $request->user()->recipes->sortByDesc('created_at');
 
@@ -95,9 +99,10 @@ class RecipeController extends Controller
         $rules = array(
             'title' => [
                 'required',
-                Rule::unique('recipe'),
+                Rule::unique('recipe', 'id'),
             ],
             'category' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'content' => 'nullable'
         );
         $validator = Validator::make(Input::all(), $rules);
@@ -113,6 +118,8 @@ class RecipeController extends Controller
             $recipe->content = Input::get('content');
             $recipe->user_id = Auth::user()->id;
             $recipe->save();
+
+            $this->uploadImages($request, $recipe);
 
             // redirect
             Session::flash('success', 'Successfully created Recipe!');
@@ -159,9 +166,10 @@ class RecipeController extends Controller
         $rules = array(
             'title' => [
                 'required',
-                Rule::unique('recipe')->ignore($recipe->id),
+                Rule::unique('recipe', 'id')->ignore($recipe->id),
             ],
             'category' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'content' => 'nullable'
         );
         $validator = Validator::make(Input::all(), $rules);
@@ -177,11 +185,12 @@ class RecipeController extends Controller
             $recipe->user_id = Auth::user()->id;
             $recipe->save();
 
+            $this->uploadImages($request, $recipe);
+
             // redirect
             Session::flash('success', 'Successfully created Recipe!');
 
-            return redirect('recipe');
-            //
+            return redirect()->route('recipe.show', ['recipe' => $recipe->id]);
         }
     }
 
@@ -195,6 +204,69 @@ class RecipeController extends Controller
     {
         $recipe->delete();
         return redirect('recipe');
-        //
+    }
+
+
+    public function deleteImage(Request $request, RecipeImage $recipeImage)
+    {
+        Storage::delete(public_path('storage/public/images/recipe/thumbnail/' . $recipeImage->name));
+        Storage::delete(public_path('storage/public/images/recipe/thumbnail/' . $recipeImage->name_thumb));
+
+        $recipe_id = $recipeImage->recipe_id;
+        $recipeImage->delete();
+
+        return redirect()->route('recipe.show', ['recipe' => $recipe_id]);
+    }
+
+    /**
+     * Create a thumbnail of specified size
+     *
+     * @param string $path path of thumbnail
+     * @param int $width
+     * @param int $height
+     */
+    public function createThumbnail($path, $width, $height)
+    {
+        $img = Image::make($path)->resize($width, $height, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+        $img->save($path);
+    }
+
+
+
+    private function uploadImages(Request $request, Recipe $recipe)
+    {
+        if($request->hasFile('image')) {
+
+            //get filename with extension
+            $filenameWithExtension = $request->file('image')->getClientOriginalName();
+
+            //get filename without extension
+            $fileName = pathinfo($filenameWithExtension, PATHINFO_FILENAME);
+
+            //get file extension
+            $extension = $request->file('image')->getClientOriginalExtension();
+
+            //filename to store
+            $imageName = $fileName.'_'.time().'.'.$extension;
+
+            //small thumbnail name
+            $imageNameThumb = $fileName.'_small_'.time().'.'.$extension;
+
+            //Upload File
+            $request->file('image')->storeAs('public/images/recipe', $imageName);
+            $request->file('image')->storeAs('public/images/recipe/thumbnail', $imageNameThumb);
+
+            //create small thumbnail
+            $imageNameThumbPath = public_path('storage/public/images/recipe/thumbnail/'.$imageNameThumb);
+            $this->createThumbnail($imageNameThumbPath, 150, 93);
+
+            $recipeImages = new \App\RecipeImage();
+            $recipeImages->recipe_id = $recipe->id;
+            $recipeImages->name = $imageName;
+            $recipeImages->name_thumb = $imageNameThumb ?? $imageName;
+            $recipeImages->save();
+        }
     }
 }

@@ -7,7 +7,7 @@
             <div class="card justify-content-center">
                 <div class="card-header align-content-center">{{ __('Recipe Index') }}</div>
 
-                <div class="card-body">
+                <td class="card-body">
                     <div class="btn-group mb-4">
                         @if($categories)
                             @foreach($categories as $category)
@@ -38,6 +38,7 @@
                             <thead>
                             <tr>
                                 <th>#</th>
+                                <th>image</th>
                                 <th>Recipe title</th>
                                 <th>Recipe category</th>
                                 <th>Recipe content</th>
@@ -50,6 +51,13 @@
                                 @foreach($recipes as $recipe)
                                     <tr>
                                         <td>{{ $recipe->id }} </td>
+                                        <td>
+                                            @if($recipe->main_image)
+                                                <a href="{{ route('recipe.show', ['recipe' => $recipe->id]) }}">
+                                                    <img src='{{ url('storage/public/images/recipe/thumbnail/'.$recipe->main_image->name_thumb) }}'>
+                                                </a>
+                                            @endif
+                                        </td>
                                         <td><a href="{{ route('recipe.show', ['recipe' => $recipe->id]) }}"> {{ $recipe->title }} </a></td>
                                         <td>{{ $recipe->category }} </td>
                                         <td>{{ $recipe->content }} </td>

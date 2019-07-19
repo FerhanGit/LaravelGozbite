@@ -36,13 +36,17 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
+        $this->request = $request;
         $this->middleware('guest')->except('logout');
     }
 
     protected function authenticated(Request $request, $user)
     {
         Mail::to($user)->send(new UserLoggedIn($user));
+
+        // Redirect to previously intendet page or to default one
+        return redirect()->intended($this->redirectTo);
     }
 }
