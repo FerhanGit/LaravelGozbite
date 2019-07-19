@@ -52,7 +52,7 @@
                             <div class="row justify-content-center">
                                 <div class="col-md-12  mt-4">
                                     @if($recipe->main_image)
-                                        <img class="col-md-12" src='{{ url('storage/public/images/recipe/'.$recipe->main_image->name) }}'>
+                                        <img class="col-md-12" src='{{ asset('storage/public/images/recipe/'.$recipe->main_image->name) }}'>
                                     @endif
                                 </div>
                             </div>
@@ -60,7 +60,7 @@
                             <div class="row justify-content-center">
                                 @foreach($recipe->recipeImages as $image)
                                     <div class="col-md-6  mt-4">
-                                        <img src='{{ url('storage/public/images/recipe/thumbnail/'.$image->name_thumb) }}'>
+                                        <img src='{{ asset('storage/public/images/recipe/thumbnail/'.$image->name_thumb) }}'>
                                         <div class="col-md-6">
                                             <form method="POST" action="{{ route('recipe.delete.image', ['recipeImage' => $image->id]) }}">
                                                 @csrf

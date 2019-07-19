@@ -54,7 +54,7 @@
                                         <td>
                                             @if($recipe->main_image)
                                                 <a href="{{ route('recipe.show', ['recipe' => $recipe->id]) }}">
-                                                    <img src='{{ url('storage/public/images/recipe/thumbnail/'.$recipe->main_image->name_thumb) }}'>
+                                                    <img src='{{ asset('storage/public/images/recipe/thumbnail/'.$recipe->main_image->name_thumb) }}'>
                                                 </a>
                                             @endif
                                         </td>
