@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Intervention\Image\Facades\Image;
 use function storage_path;
+use function unlink;
 
 class RecipeController extends Controller
 {
@@ -202,6 +203,9 @@ class RecipeController extends Controller
      */
     public function destroy(Request $request, Recipe $recipe)
     {
+        foreach ($recipe->recipeImages as $recipeImage) {
+            $this->deleteImage($request, $recipeImage);
+        }
         $recipe->delete();
         return redirect('recipe');
     }
@@ -209,8 +213,8 @@ class RecipeController extends Controller
 
     public function deleteImage(Request $request, RecipeImage $recipeImage)
     {
-        Storage::delete(public_path('storage/public/images/recipe/thumbnail/' . $recipeImage->name));
-        Storage::delete(public_path('storage/public/images/recipe/thumbnail/' . $recipeImage->name_thumb));
+        @unlink(public_path('storage/public/images/recipe/' . $recipeImage->name));
+        @unlink(public_path('storage/public/images/recipe/thumbnail/' . $recipeImage->name_thumb));
 
         $recipe_id = $recipeImage->recipe_id;
         $recipeImage->delete();
