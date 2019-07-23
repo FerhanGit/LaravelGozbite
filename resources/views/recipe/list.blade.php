@@ -50,16 +50,16 @@
                             <tbody>
                                 @foreach($recipes as $recipe)
                                     <tr>
-                                        <td>{{ $recipe->id }} </td>
+                                        <td>{{ $recipe->id }} | {{ $loop->iteration }}</td>
                                         <td>
                                             @if($recipe->main_image)
                                                 <a href="{{ route('recipe.show', ['recipe' => $recipe->id]) }}">
-                                                    <img src='{{ asset('storage/public/images/recipe/thumbnail/'.$recipe->main_image->name_thumb) }}'>
+                                                    <img class="img-thumbnail rounded-circle" src='{{ asset('storage/images/recipe/thumbnail/'.$recipe->main_image->name_thumb) }}'>
                                                 </a>
                                             @endif
                                         </td>
                                         <td><a href="{{ route('recipe.show', ['recipe' => $recipe->id]) }}"> {{ $recipe->title }} </a></td>
-                                        <td>{{ $recipe->category }} </td>
+                                        <td><a href="{{ route('recipe.category.list', ['category' => $recipe->category]) }}">{{ $recipe->category }} </a></td>
                                         <td>{{ $recipe->content }} </td>
                                         <td> <a href="{{ route('home') }}"> {{ $recipe->user->id }} </a> </td>
                                         <td><a href="{{ route('home') }}"> {{ $recipe->user->name }} </a> </td>
@@ -68,7 +68,6 @@
                                                 <span class="text-danger"> >> Main user << </span>
                                             @endif
                                         </td>
-
                                     </tr>
                                 @endforeach
                             </tbody>

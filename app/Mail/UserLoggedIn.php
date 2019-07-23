@@ -31,7 +31,7 @@ class UserLoggedIn extends Mailable
     public function build()
     {
         return $this->from('fismailov@mailjet.com')
-                ->subject('User is Logged In dude')
-                ->view('emails.user_logged_in');
+            ->subject('User is Logged In dude')
+            ->view('emails.user_logged_in');
     }
 }

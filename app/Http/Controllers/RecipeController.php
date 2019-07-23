@@ -24,7 +24,7 @@ class RecipeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['lists', 'listsByUser', 'listsByCategory']);
     }
 
     /**
@@ -34,6 +34,7 @@ class RecipeController extends Controller
      */
     public function lists(Request $request, $category = null, $user = null)
     {
+
         $where = [];
         if (!empty($category)) {
             $where['category'] = $category;
@@ -103,7 +104,7 @@ class RecipeController extends Controller
                 Rule::unique('recipe', 'id'),
             ],
             'category' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'content' => 'nullable'
         );
         $validator = Validator::make(Input::all(), $rules);
@@ -114,8 +115,8 @@ class RecipeController extends Controller
         } else {
             // store
             $recipe = new Recipe();
-            $recipe->title       = Input::get('title');
-            $recipe->category      = Input::get('category');
+            $recipe->title = Input::get('title');
+            $recipe->category = Input::get('category');
             $recipe->content = Input::get('content');
             $recipe->user_id = Auth::user()->id;
             $recipe->save();
@@ -127,8 +128,6 @@ class RecipeController extends Controller
 
             return redirect('recipe');
         }
-
-        //
     }
 
     /**
@@ -140,7 +139,6 @@ class RecipeController extends Controller
     public function show(Request $request, Recipe $recipe)
     {
         return view('recipe.show', compact('recipe'));
-        //
     }
 
     /**
@@ -152,7 +150,6 @@ class RecipeController extends Controller
     public function edit(Request $request, Recipe $recipe)
     {
         return view('recipe.edit', compact('recipe'));
-        //
     }
 
     /**
@@ -170,7 +167,7 @@ class RecipeController extends Controller
                 Rule::unique('recipe', 'id')->ignore($recipe->id),
             ],
             'category' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'content' => 'nullable'
         );
         $validator = Validator::make(Input::all(), $rules);
@@ -213,8 +210,8 @@ class RecipeController extends Controller
 
     public function deleteImage(Request $request, RecipeImage $recipeImage)
     {
-        @unlink(public_path('storage/public/images/recipe/' . $recipeImage->name));
-        @unlink(public_path('storage/public/images/recipe/thumbnail/' . $recipeImage->name_thumb));
+        Storage::delete('images/recipe/' . $recipeImage->name);
+        Storage::delete('images/recipe/thumbnail/' . $recipeImage->name_thumb);
 
         $recipe_id = $recipeImage->recipe_id;
         $recipeImage->delete();
@@ -233,7 +230,8 @@ class RecipeController extends Controller
     {
         $img = Image::make($path)->resize($width, $height, function ($constraint) {
             $constraint->aspectRatio();
-        });
+        })->invert();
+
         $img->save($path);
     }
 
@@ -241,36 +239,40 @@ class RecipeController extends Controller
 
     private function uploadImages(Request $request, Recipe $recipe)
     {
-        if($request->hasFile('image')) {
+        if($request->hasFile('images')) {
 
-            //get filename with extension
-            $filenameWithExtension = $request->file('image')->getClientOriginalName();
+            $files = $request->file('images');
 
-            //get filename without extension
-            $fileName = pathinfo($filenameWithExtension, PATHINFO_FILENAME);
+            foreach ($files as $file) {
+                //get filename with extension
+                $filenameWithExtension = $file->getClientOriginalName();
 
-            //get file extension
-            $extension = $request->file('image')->getClientOriginalExtension();
+                //get filename without extension
+                $fileName = pathinfo($filenameWithExtension, PATHINFO_FILENAME);
 
-            //filename to store
-            $imageName = $fileName.'_'.time().'.'.$extension;
+                //get file extension
+                $extension = $file->getClientOriginalExtension();
 
-            //small thumbnail name
-            $imageNameThumb = $fileName.'_small_'.time().'.'.$extension;
+                //filename to store
+                $imageName = $fileName . '_' . time() . '.' . $extension;
 
-            //Upload File
-            $request->file('image')->storeAs('public/images/recipe', $imageName);
-            $request->file('image')->storeAs('public/images/recipe/thumbnail', $imageNameThumb);
+                //small thumbnail name
+                $imageNameThumb = $fileName . '_small_' . time() . '.' . $extension;
 
-            //create small thumbnail
-            $imageNameThumbPath = public_path('storage/public/images/recipe/thumbnail/'.$imageNameThumb);
-            $this->createThumbnail($imageNameThumbPath, 150, 93);
+                //Upload File
+                $file->storeAs('images/recipe', $imageName);
+                $file->storeAs('images/recipe/thumbnail', $imageNameThumb);
 
-            $recipeImages = new \App\RecipeImage();
-            $recipeImages->recipe_id = $recipe->id;
-            $recipeImages->name = $imageName;
-            $recipeImages->name_thumb = $imageNameThumb ?? $imageName;
-            $recipeImages->save();
+                //create small thumbnail
+                $imageNameThumbPath = storage_path('app/public/images/recipe/thumbnail/' . $imageNameThumb);
+                $this->createThumbnail($imageNameThumbPath, 150, 93);
+
+                $recipeImages = new \App\RecipeImage();
+                $recipeImages->recipe_id = $recipe->id;
+                $recipeImages->name = $imageName;
+                $recipeImages->name_thumb = $imageNameThumb ?? $imageName;
+                $recipeImages->save();
+            }
         }
     }
 }
