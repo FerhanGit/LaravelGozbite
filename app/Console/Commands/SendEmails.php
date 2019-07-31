@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\UserLoggedIn;
 use function array_keys;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class SendEmails extends Command
 {
@@ -44,11 +46,15 @@ class SendEmails extends Command
 
         foreach ($users as $user) {
             $headers = array_keys($user);
+            $userModel = new \App\User($user);
+            Mail::to($userModel)->send(new UserLoggedIn($userModel));
             $bar->advance();
         }
 
 
         $this->table($headers, $users);
+
+
         $bar->finish();
     }
 }
